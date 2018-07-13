@@ -1,8 +1,9 @@
 package com.alibaba.interview;
 
 public class Test {
-	public static void main(String[] args) {
-		testAntMinStack();
+	public static void main(String[] args) throws Exception {
+		//		testAntMinStack();
+		testBigFileReader();
 	}
 
 	/**
@@ -41,6 +42,24 @@ public class Test {
 
 		System.out.println("AntMinStack test end......");
 
+	}
+
+	/**
+	 * Test two.
+	 */
+	public static void testBigFileReader() throws Exception {
+		long startTime = System.nanoTime();
+		StringBuilder builder = new StringBuilder();
+		try (BigFileReader reader = new BigFileReader(
+			"src\\com\\alibaba\\interview\\AntMinStack.java")) {
+			while (reader.readBytes() != -1) {
+				builder.append(new String(reader.getBytes(), "UTF-8"));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		System.out.println(builder.toString());
+		System.out.println("spend time " + (System.nanoTime() - startTime));
 	}
 
 }
