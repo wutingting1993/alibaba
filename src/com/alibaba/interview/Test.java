@@ -72,7 +72,7 @@ public class Test {
 	 */
 	public static void testCalculator() {
 		Calculator calc = new Calculator();
-		String str = "2*(0-1+2)*(3+4)=";
+		String str = "2*(0-1+2)*(3+4)";
 		System.out.println(calc.doCalculate(str));
 	}
 
