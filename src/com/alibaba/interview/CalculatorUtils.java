@@ -5,17 +5,17 @@ import java.util.LinkedList;
 import java.util.Map;
 
 public class CalculatorUtils {
-	public static final int FORMAT_MAX_LENGTH = 500;// 表达式最大长度限制
-	public static final Map<Character, Integer> symLvMap = new HashMap<Character, Integer>();// 符号优先级map
+	public static final int FORMAT_MAX_LENGTH = 500;
+	public static final Map<Character, Integer> symbolMap = new HashMap<Character, Integer>();
 
 	static {
-		symLvMap.put('=', 0);
-		symLvMap.put('-', 1);
-		symLvMap.put('+', 1);
-		symLvMap.put('*', 2);
-		symLvMap.put('/', 2);
-		symLvMap.put('(', 3);
-		symLvMap.put(')', 1);
+		symbolMap.put('=', 0);
+		symbolMap.put('-', 1);
+		symbolMap.put('+', 1);
+		symbolMap.put('*', 2);
+		symbolMap.put('/', 2);
+		symbolMap.put('(', 3);
+		symbolMap.put(')', 1);
 	}
 
 	public static String check(String str) {
@@ -47,7 +47,7 @@ public class CalculatorUtils {
 
 		for (int i = 1; i < str.length() - 1; i++) {
 			char c = str.charAt(i);
-			if (!validateChar(c)) {// 字符不合法
+			if (!validateChar(c)) {
 				return false;
 			}
 			if (!(Character.isDigit(c))) {
@@ -104,7 +104,7 @@ public class CalculatorUtils {
 	}
 
 	public static boolean validateChar(Character c) {
-		return Character.isDigit(c) || symLvMap.keySet().contains(c) || c == '.';
+		return Character.isDigit(c) || symbolMap.keySet().contains(c) || c == '.';
 	}
 
 	public static double plus(double num1, double num2) {

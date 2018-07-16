@@ -38,7 +38,7 @@ public class Calculator {
                 symStack.add('=');
                 numStack.add(nums.get(i++));
             }
-            if (CalculatorUtils.symLvMap.get(symbols.charAt(j)) > CalculatorUtils.symLvMap.get(symStack.getLast())) {// 比较符号优先级，若当前符号优先级大于前一个则压栈
+            if (CalculatorUtils.symbolMap.get(symbols.charAt(j)) > CalculatorUtils.symbolMap.get(symStack.getLast())) {// 比较符号优先级，若当前符号优先级大于前一个则压栈
                 if (symbols.charAt(j) == '(') {
                     symStack.add(symbols.charAt(j++));
                     continue;

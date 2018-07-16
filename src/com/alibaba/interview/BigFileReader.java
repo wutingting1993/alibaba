@@ -6,7 +6,6 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Objects;
 
-//https://segmentfault.com/q/1010000008812322
 public class BigFileReader implements AutoCloseable {
 
 	private static final int defaultReadSize = Integer.MAX_VALUE;
