@@ -31,11 +31,13 @@ public class Statistics {
 		minMap.clear();
 		latch = new CountDownLatch(fileNames.size());
 		if (Objects.isNull(executor)) {
-			synchronized (executor) {
-				if (Objects.isNull(executor)) {
-					executor = Executors.newFixedThreadPool(threadCount);
-				}
-			}
+			initPool(threadCount);
+		}
+	}
+
+	private synchronized void initPool(int threadCount) {
+		if (Objects.isNull(executor)) {
+			executor = Executors.newFixedThreadPool(threadCount);
 		}
 	}
 
