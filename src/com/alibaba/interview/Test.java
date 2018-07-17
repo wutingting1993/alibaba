@@ -92,6 +92,7 @@ public class Test {
 				break;
 			}
 		}
+		Statistics.closePool();
 
 	}
 }

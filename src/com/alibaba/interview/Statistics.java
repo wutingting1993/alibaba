@@ -107,7 +107,6 @@ public class Statistics {
 			}
 		}
 		finish = true;
-		executor.shutdown();
 	}
 
 	private synchronized void count() {
@@ -123,5 +122,11 @@ public class Statistics {
 
 	public boolean isFinish() {
 		return finish;
+	}
+
+	public static synchronized void closePool() {
+		if (Objects.nonNull(executor)) {
+			executor.shutdown();
+		}
 	}
 }
