@@ -17,22 +17,27 @@ public class Statistics {
 	private Stack<Item> stack = new Stack();
 	private Map<String, Map<String, Item>> minMap = new ConcurrentHashMap<>();
 	private CountDownLatch latch;
-	private ExecutorService executor;
+	private static ExecutorService executor;
 	private int threadCount;
 	private List<String> fileNames = new ArrayList<>();
 
 	public Statistics(String fileName, int threadCount) {
-
+		this.initThreadPool(threadCount);
 		this.getFileNames(fileName, fileNames);
 
-		if (threadCount > fileNames.size()) {
+		if (threadCount >= fileNames.size()) {
 			this.threadCount = fileNames.size();
 		} else {
-			this.threadCount = threadCount;
+			this.threadCount = (int)Math.ceil((double)fileNames.size() / threadCount);
 		}
 
 		latch = new CountDownLatch(this.threadCount);
-		executor = Executors.newFixedThreadPool(this.threadCount);
+	}
+
+	private synchronized void initThreadPool(int threadCount) {
+		if (Objects.isNull(executor)) {
+			executor = Executors.newFixedThreadPool(threadCount);
+		}
 	}
 
 	public void read() throws InterruptedException {
@@ -58,7 +63,8 @@ public class Statistics {
 							reader.lines().forEach(line -> {
 								String[] lineValues = line.split(",");
 								if (lineValues.length == 3) {
-									stack.push(new Item(lineValues[0].trim(), lineValues[1].trim(), lineValues[2].trim()));
+									stack.push(
+										new Item(lineValues[0].trim(), lineValues[1].trim(), lineValues[2].trim()));
 								}
 							});
 						} catch (Exception e) {
