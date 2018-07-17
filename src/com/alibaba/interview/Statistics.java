@@ -18,7 +18,6 @@ public class Statistics {
 	private Map<String, Map<String, Item>> minMap = new ConcurrentHashMap<>();
 	private CountDownLatch latch;
 	private static ExecutorService executor;
-	private int threadCount;
 	private List<String> fileNames = new ArrayList<>();
 
 	public Statistics(String fileName, int threadCount) {
@@ -27,13 +26,7 @@ public class Statistics {
 		}
 		this.getFileNames(fileName, fileNames);
 
-		if (threadCount >= fileNames.size()) {
-			this.threadCount = fileNames.size();
-		} else {
-			this.threadCount = (int)Math.ceil((double)fileNames.size() / threadCount);
-		}
-
-		latch = new CountDownLatch(this.threadCount);
+		latch = new CountDownLatch(fileNames.size());
 	}
 
 	private synchronized void initThreadPool(int threadCount) {
@@ -43,36 +36,24 @@ public class Statistics {
 	}
 
 	public void read() throws InterruptedException {
+		if (fileNames.isEmpty()) {
+			return;
+		}
 		init();
 
-		int threadRead = (int)Math.ceil(Double.valueOf(fileNames.size()) / threadCount);
-
-		for (int i = 0; i < threadCount; i++) {
-
-			if (i == threadCount - 1) {
-				threadRead = fileNames.size() - threadRead * (threadCount - 1);
-			}
-
-			int finalThreadRead = threadRead;
-			int finalI = i;
-
+		for (int i = 0; i < fileNames.size(); i++) {
+			String fileName = fileNames.get(i);
 			executor.execute(new Thread(() -> {
-				try {
-					for (int j = 0; j < finalThreadRead; j++) {
-						String fileName = fileNames.get(finalI * finalThreadRead + j);
-						Closeable:
-						try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
-							reader.lines().forEach(line -> {
-								String[] lineValues = line.split(",");
-								if (lineValues.length == 3) {
-									stack.push(
-										new Item(lineValues[0].trim(), lineValues[1].trim(), lineValues[2].trim()));
-								}
-							});
-						} catch (Exception e) {
-							e.printStackTrace();
+				Closeable:
+				try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+					reader.lines().forEach(line -> {
+						String[] lineValues = line.split(",");
+						if (lineValues.length == 3) {
+							stack.push(new Item(lineValues[0].trim(), lineValues[1].trim(), lineValues[2].trim()));
 						}
-					}
+					});
+				} catch (Exception e) {
+					e.printStackTrace();
 				} finally {
 					latch.countDown();
 					count();
@@ -127,11 +108,12 @@ public class Statistics {
 			}
 		}
 		finish = true;
+		executor.shutdown();
 	}
 
 	private synchronized void count() {
 		count++;
-		if (count >= threadCount) {
+		if (count >= fileNames.size()) {
 			readFinish = true;
 		}
 	}
