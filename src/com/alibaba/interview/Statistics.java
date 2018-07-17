@@ -11,13 +11,13 @@ import java.util.concurrent.Executors;
 
 public class Statistics {
 
+	private static ExecutorService executor;
 	private boolean readFinish = false;
 	private boolean finish = false;
 	private int count = 0;
 	private Stack<Item> stack = new Stack();
 	private Map<String, Map<String, Item>> minMap = new ConcurrentHashMap<>();
 	private CountDownLatch latch;
-	private static ExecutorService executor;
 	private List<String> fileNames;
 
 	public Statistics(String fileName, int threadCount) {
@@ -31,11 +31,11 @@ public class Statistics {
 		minMap.clear();
 		latch = new CountDownLatch(fileNames.size());
 		if (Objects.isNull(executor)) {
-			initPool(threadCount);
+			Statistics.initPool(threadCount);
 		}
 	}
 
-	private synchronized void initPool(int threadCount) {
+	private static synchronized void initPool(int threadCount) {
 		if (Objects.isNull(executor)) {
 			executor = Executors.newFixedThreadPool(threadCount);
 		}
