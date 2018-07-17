@@ -22,7 +22,9 @@ public class Statistics {
 	private List<String> fileNames = new ArrayList<>();
 
 	public Statistics(String fileName, int threadCount) {
-		this.initThreadPool(threadCount);
+		if (Objects.isNull(executor)) {
+			this.initThreadPool(threadCount);
+		}
 		this.getFileNames(fileName, fileNames);
 
 		if (threadCount >= fileNames.size()) {
