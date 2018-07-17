@@ -18,20 +18,24 @@ public class Statistics {
 	private Map<String, Map<String, Item>> minMap = new ConcurrentHashMap<>();
 	private CountDownLatch latch;
 	private static ExecutorService executor;
-	private List<String> fileNames = new ArrayList<>();
+	private List<String> fileNames;
 
 	public Statistics(String fileName, int threadCount) {
-		if (Objects.isNull(executor)) {
-			this.initThreadPool(threadCount);
-		}
-		this.getFileNames(fileName, fileNames);
-
-		latch = new CountDownLatch(fileNames.size());
+		this.getFileNames(fileName);
+		this.init(threadCount);
 	}
 
-	private synchronized void initThreadPool(int threadCount) {
+	private void init(int threadCount) {
+		finish = false;
+		readFinish = false;
+		minMap.clear();
+		latch = new CountDownLatch(fileNames.size());
 		if (Objects.isNull(executor)) {
-			executor = Executors.newFixedThreadPool(threadCount);
+			synchronized (executor) {
+				if (Objects.isNull(executor)) {
+					executor = Executors.newFixedThreadPool(threadCount);
+				}
+			}
 		}
 	}
 
@@ -39,8 +43,6 @@ public class Statistics {
 		if (fileNames.isEmpty()) {
 			return;
 		}
-		init();
-
 		for (int i = 0; i < fileNames.size(); i++) {
 			String fileName = fileNames.get(i);
 			executor.execute(new Thread(() -> {
@@ -65,18 +67,13 @@ public class Statistics {
 
 	}
 
-	private void init() {
-		finish = false;
-		readFinish = false;
-		minMap.clear();
-	}
-
-	private void getFileNames(String fileName, List<String> fileNames) {
+	private void getFileNames(String fileName) {
+		fileNames = new ArrayList<>();
 		File file = new File(fileName);
 		if (file.isDirectory()) {
 			Arrays.stream(file.listFiles()).forEach(item -> {
 				if (item.isDirectory()) {
-					getFileNames(item.getPath(), fileNames);
+					getFileNames(item.getPath());
 				} else {
 					fileNames.add(item.getPath());
 				}
